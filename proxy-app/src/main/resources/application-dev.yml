@@ -16,7 +16,7 @@ spring:
     # 个人配置，通过 http://127.0.0.1:8090 代理出去
     agent:
       base-url: https://apis.itedus.cn
-      api-key: sk-hpWgs2M83327R5qc9b517f07781b4dE483F260Fb20DaCe18
+      api-key: sk-2GQTYTNoQSs7qizlE9F00bD84d254c2994D44d6410B0Ac8f
 
 # 日志
 logging:
