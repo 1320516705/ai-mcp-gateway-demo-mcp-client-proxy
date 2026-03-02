@@ -22,6 +22,17 @@ public class OpenAiApiProxyController {
     public Object completions(@RequestBody Object request) {
         log.info("请求入参：{}", JSON.toJSONString(request));
         return openAiApiProxy.completions(request).blockingGet();
+        /**
+         * // execute()返回完整响应
+         * Response<Object> response = call.execute();
+         * Object data = response.body();        // 实际数据
+         * int statusCode = response.code();     // HTTP状态码
+         * boolean success = response.isSuccessful(); // 是否成功
+         *
+         * // blockingGet()直接返回数据
+         * Object data = single.blockingGet();   // 直接获取结果
+         * // 状态码和错误信息被RxJava内部处理
+         */
     }
 
 }

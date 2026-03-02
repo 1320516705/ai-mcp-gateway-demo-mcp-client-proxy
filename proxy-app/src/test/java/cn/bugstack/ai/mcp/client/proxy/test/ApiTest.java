@@ -3,8 +3,6 @@ package cn.bugstack.ai.mcp.client.proxy.test;
 import io.modelcontextprotocol.client.McpClient;
 import io.modelcontextprotocol.client.McpSyncClient;
 import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
-import io.modelcontextprotocol.client.transport.ServerParameters;
-import io.modelcontextprotocol.client.transport.StdioClientTransport;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -30,12 +28,25 @@ import java.util.Arrays;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class ApiTest {
+    /**
+     *
+     * Spring AI ChatClient
+     *     ↓ (通过ToolCallbacks集成)
+     * SyncMcpToolCallbackProvider
+     *     ↓ (提供工具回调)
+     * McpClient (MCP协议客户端)
+     *     ↓ (通过SSE传输)
+     * HttpClientSseClientTransport
+     *     ↓ (网络连接)
+     * MCP服务端
+     */
 
     @Resource
     private ChatClient.Builder chatClientBuilder;
 
     @Test
     public void test() {
+//        SyncMcpToolCallbackProvider：这是Spring AI提供的MCP工具回调提供者，负责将MCP协议的工具能力集成到ChatClient中。
         ChatClient chatClient = chatClientBuilder.defaultOptions(
                         OpenAiChatOptions.builder()
                                 .model("gpt-4.1-mini")
@@ -47,10 +58,13 @@ public class ApiTest {
     }
 
     public McpSyncClient sseMcpClient() {
+//        HttpClientSseClientTransport：MCP协议的HTTP SSE传输层实现，负责与MCP服务端建立持久连接。
+//        1. 建立HTTP连接 → 2. 升级到SSE → 3. 持续监听事件 → 4. 实时接收工具调用请求
         HttpClientSseClientTransport sseClientTransport = HttpClientSseClientTransport
                 .builder("http://localhost:8701/sse")
                 .build();
 
+//        McpClient：MCP协议的客户端实现，负责与MCP服务端进行通信。
         McpSyncClient mcpSyncClient = McpClient.sync(sseClientTransport).requestTimeout(Duration.ofMinutes(360)).build();
         var init_sse = mcpSyncClient.initialize();
         log.info("Tool SSE MCP Initialized {}", init_sse);
